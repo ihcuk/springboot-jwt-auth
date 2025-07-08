@@ -1,6 +1,7 @@
 package com.apexon.auth.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,6 +10,7 @@ import lombok.Data;
 @Entity
 @Table(name = "users")
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
@@ -24,6 +26,8 @@ public class User {
     private String password;
 
     private String name;
+
+    private String contactNumber;
 
     private String role = "USER";
 }

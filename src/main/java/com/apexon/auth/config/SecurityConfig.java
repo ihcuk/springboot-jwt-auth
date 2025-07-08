@@ -4,7 +4,6 @@ import com.apexon.auth.security.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -24,7 +23,14 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll()
+                    .requestMatchers(
+                            "/api/auth/**",                          // public auth routes
+                            "/v3/api-docs/**", "/swagger-ui/**",     // swagger JSON
+                            "/swagger-ui.html", "/swagger-resources/**", "/webjars/**",
+                            "/h2-console/**",
+                            "/api/auth/hello"
+                    ).permitAll()
+                    .requestMatchers("/api/users/**").authenticated()
                 .anyRequest().authenticated()
             );
 
