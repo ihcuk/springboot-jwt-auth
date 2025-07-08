@@ -1,5 +1,6 @@
 package com.apexon.auth.service;
 
+import com.apexon.auth.dto.UpdateProfileRequest;
 import com.apexon.auth.dto.UserResponse;
 import com.apexon.auth.entity.User;
 import com.apexon.auth.repository.UserRepository;
@@ -23,15 +24,22 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    public UserResponse updateUserProfile(String currentEmail, UpdateProfileRequest request) {
+        User user = userRepository.findByEmail(currentEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setContactNumber(request.getContactNumber());
+
+        userRepository.save(user);
+
+        return ModelMapperUtil.map(user, UserResponse.class);
+    }
+
     public UserResponse getUserResponseByEmail(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
-        UserResponse dto = new UserResponse();
-        dto.setId(user.getId());
-        dto.setName(user.getName());
-        dto.setEmail(user.getEmail());
-        dto.setContactNumber(user.getContactNumber());
-        return dto;
+        return ModelMapperUtil.map(user, UserResponse.class);
     }
 }

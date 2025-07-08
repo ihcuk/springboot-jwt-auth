@@ -1,6 +1,7 @@
 package com.apexon.auth.controller;
 
 import com.apexon.auth.dto.ApiResponse;
+import com.apexon.auth.dto.UpdateProfileRequest;
 import com.apexon.auth.dto.UserResponse;
 import com.apexon.auth.security.JwtUtil;
 import com.apexon.auth.service.UserService;
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -54,5 +56,27 @@ public class UserController {
 
         UserResponse user = userService.getUserResponseByEmail(email);
         return ResponseEntity.ok(ApiResponse.success(user, "User profile fetched successfully"));
+    }
+
+    @PutMapping("/profile")
+    @Operation(
+            summary = "Update current logged-in user's profile",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Profile updated successfully"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Unauthorized access"),
+    })
+    public ResponseEntity<ApiResponse<UserResponse>> updateProfile(
+            @RequestHeader("Authorization") String authHeader,
+            @Valid @RequestBody UpdateProfileRequest request) {
+
+        log.info("Updating user profile");
+
+        String token = authHeader.startsWith("Bearer ") ? authHeader.substring(7) : authHeader;
+        String email = jwtUtil.extractUsername(token);
+
+        UserResponse updatedUser = userService.updateUserProfile(email, request);
+        return ResponseEntity.ok(ApiResponse.success(updatedUser, "Profile updated successfully"));
     }
 }
